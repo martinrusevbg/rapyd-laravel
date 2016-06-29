@@ -40,10 +40,19 @@ class Date extends Field
     protected function isoDateToHuman($isodate)
     {
         $isodate = str_replace(" 00:00:00", "", $isodate);
-        $datetime = \DateTime::createFromFormat( 'Y-m-d', $isodate);
-        if (!$datetime || $isodate == '0000-00-00') return '';
+        $datetime = \DateTime::createFromFormat('Y-m-d', $isodate);
+        if (!$datetime) {
+            $isodate = $this->humanDateToIso($isodate);
+            $datetime = \DateTime::createFromFormat('Y-m-d', $isodate);
+            if (!$datetime)
+                return '';
+        }
+        $timestamp = $datetime->getTimestamp();
+        if ($timestamp < 1) {
+            return "";
+        }
+        $isodate = date($this->format, $timestamp);
 
-        $isodate = $datetime->format($this->format);
         return $isodate;
     }
 
